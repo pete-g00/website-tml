@@ -1,0 +1,21 @@
+.tm-panel {
+    padding: 0 25px 25px 0;
+    border-bottom: 5px solid black;
+}
+
+.tm svg {
+    margin: auto;
+}
+
+div.tm-screen {
+    height: 300px;
+    margin: 0 25px;
+}
+
+div.tm-screen:has(.def-panel) {
+    overflow-y: scroll;
+}
+
+div.tm-screen div.def-panel {
+    margin: 10px
+}

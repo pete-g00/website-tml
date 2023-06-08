@@ -1,0 +1,9 @@
+.Editor {
+	width: 100%;
+	height: max(95vh, 100%);
+	resize: vertical;
+}
+
+.monaco-hover {
+	z-index: 1200 !important;
+}
