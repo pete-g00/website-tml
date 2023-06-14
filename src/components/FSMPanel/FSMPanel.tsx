@@ -1,15 +1,15 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import { Graphviz } from "@hpcc-js/wasm";
 import { TuringMachine } from 'parser-tml';
 import { Box } from '@mui/material';
 import * as d3 from 'd3';
 import './FSMPanel.css';
+import { UserConfigContext } from '../UserConfigContextProvider/UserConfigContextProvider';
 
 interface FSMPanelProps {
     turingMachine: TuringMachine;
     currentState: string|undefined;
     currentEdge: string|undefined;
-    transitionTime: number;
 }
 
 function convertToDot(tm:TuringMachine): string {
@@ -48,8 +48,9 @@ function convertToDot(tm:TuringMachine): string {
     return values.join("");
 }
 
-function FSMPanel({ turingMachine, currentEdge, currentState, transitionTime }: FSMPanelProps) {
+function FSMPanel({ turingMachine, currentEdge, currentState }: FSMPanelProps) {
     const divElement = useRef<HTMLDivElement>(null);
+    const { transitionTime } = useContext(UserConfigContext);
 
     function changeCurrentState(currentState:string|undefined) {
         if (currentState) {

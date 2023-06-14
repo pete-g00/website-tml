@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Grid } from '@mui/material';
 import Editor from '../Editor/Editor';
 import TMPanel from '../TMPanel/TMPanel';
@@ -6,16 +6,12 @@ import TapePanel from '../TapePanel/TapePanel';
 import AppToolbar from '../Apptoolbar/Apptoolbar';
 import { CodeParser, CodeConverter, ProgramContext, TuringMachine, CodePosition } from 'parser-tml';
 import AppDrawer from '../AppDrawer/AppDrawer';
-import { UserConfiguration } from '../../App';
+import { UserConfigContext } from '../UserConfigContextProvider/UserConfigContextProvider';
 import * as _examples from '../examples.json';
 
 const examples :{[key:string]: string} = _examples;
 
-interface HomePageProps {
-    userConfiguration: UserConfiguration;
-}
-
-function HomePage({ userConfiguration }:HomePageProps) {
+function HomePage() {
     const [program, setProgram] = useState<ProgramContext|undefined>(undefined);
     const [turingMachine, setTuringMachine] = useState<TuringMachine|undefined>(undefined);
 
@@ -30,8 +26,10 @@ function HomePage({ userConfiguration }:HomePageProps) {
     // (animation occurs even if the previous value equals the current value)
     const [changeCurrentEdgeFn, setChangeCurrentEdgeFn] = useState<NodeJS.Timeout|undefined>(undefined);
 
+    const userConfig = useContext(UserConfigContext);
+
     useEffect(() => {
-        userConfiguration.setExampleKey(userConfiguration, "isDiv2");
+        userConfig.dispatch({type: 'SET_EXAMPLE_KEY', exampleKey: "isDiv2"});
     }, []);
 
     useEffect(() => {
@@ -50,14 +48,14 @@ function HomePage({ userConfiguration }:HomePageProps) {
     }, [currentEdge]);
 
     useEffect(() => {
-        if (userConfiguration.exampleKey) {
-            const parser = new CodeParser(examples[userConfiguration.exampleKey]);
+        if (userConfig.exampleKey !== undefined) {
+            const parser = new CodeParser(examples[userConfig.exampleKey]);
             const program = parser.parse();
             setProgram(program);
             const converter = new CodeConverter(program);
             setTuringMachine(converter.convert());
         }
-    }, [userConfiguration]);
+    });
 
     useEffect(() => {
         if (program) {
@@ -70,21 +68,18 @@ function HomePage({ userConfiguration }:HomePageProps) {
 
     return (
         <div>
-            <AppToolbar userConfiguration={userConfiguration} />
+            <AppToolbar />
             <Grid container>
                 <Grid item xs={12} sm={6}>
-                    <Editor userConfiguration={userConfiguration} executingPositions={executingPositions}
-                        setProgram={setProgram} isTapeExecuting={isTapeExecuting}/>
+                    <Editor executingPositions={executingPositions} setProgram={setProgram} isTapeExecuting={isTapeExecuting}/>
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                    <TMPanel turingMachine={turingMachine} currentEdge={currentEdge} transitionTime={userConfiguration.transitionTime}
-                        isTapeExecuting={isTapeExecuting} currentState={currentState} />
+                    <TMPanel turingMachine={turingMachine} currentEdge={currentEdge} isTapeExecuting={isTapeExecuting} currentState={currentState} />
                     <TapePanel program={program} turingMachine={turingMachine} setExecutingPositions={setExecutingPositions}
-                        transitionTime={userConfiguration.transitionTime} setIsTapeExecuting={setIsTapeExecuting} 
-                        setCurrentState={setCurrentState} setCurrentEdge={setCurrentEdge}/>
+                        setIsTapeExecuting={setIsTapeExecuting} setCurrentState={setCurrentState} setCurrentEdge={setCurrentEdge}/>
                 </Grid>
             </Grid>
-            <AppDrawer userConfiguration={userConfiguration}/>
+            <AppDrawer />
         </div>
     );
 }

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import { Container, Divider } from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
 import * as monaco from 'monaco-editor';
@@ -6,11 +6,11 @@ import AppToolbar from '../Apptoolbar/Apptoolbar';
 import Navigation from '../DocumentationNavigation/DocumentationNavigation';
 import * as _errors from '../errors.json';
 import { ErrorInterface } from '../ErrorDocumentation/ErrorDocumentation';
-import { DocumentationProps } from '../Documentation/Documentation';
+import { UserConfigContext } from '../UserConfigContextProvider/UserConfigContextProvider';
 
 const errors:ErrorInterface = _errors;
 
-function PreciseErrorDocumentation({ userConfiguration }:DocumentationProps) {
+function PreciseErrorDocumentation() {
     const {label} = useParams();
     const errorData = errors.parser[label!] ?? errors.validator[label!];
     
@@ -26,6 +26,8 @@ function PreciseErrorDocumentation({ userConfiguration }:DocumentationProps) {
         {name: errorData.title}
     ];
 
+    const userConfig = useContext(UserConfigContext);
+    
     const divEl = useRef<HTMLDivElement>(null);
     let editor: monaco.editor.IStandaloneCodeEditor;
     useEffect(() => {
@@ -33,10 +35,10 @@ function PreciseErrorDocumentation({ userConfiguration }:DocumentationProps) {
             editor = monaco.editor.create(divEl.current, {
                 value: errorData.code,
                 language: 'TMProgram',
-                theme: userConfiguration.editorTheme,
+                theme: userConfig.editorTheme,
                 automaticLayout: true,
-                fontSize: userConfiguration.editorFontSize.value,
-                lineNumbers: userConfiguration.showEditorLineNumber ? "on" : "off",
+                fontSize: userConfig.editorFontSize.value,
+                lineNumbers: userConfig.showEditorLineNumber ? "on" : "off",
                 wordWrap: "on",
                 readOnly: true,
                 scrollBeyondLastLine: false,
@@ -46,10 +48,10 @@ function PreciseErrorDocumentation({ userConfiguration }:DocumentationProps) {
         return () => {
             editor.dispose();
         };
-    }, [userConfiguration]);
+    }, []);
     return (
         <Container>
-            <AppToolbar userConfiguration={userConfiguration} isDocumentation></AppToolbar>
+            <AppToolbar isDocumentation></AppToolbar>
             <Navigation navArray={navArray}></Navigation>
             <div className="content">
                 <h1>Turing Machine Program Error- {errorData.title}</h1>

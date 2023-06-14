@@ -3,7 +3,6 @@ import { Container, Divider, Grid, Link, List, ListItem, ListItemButton } from '
 import { Link as RouterLink } from 'react-router-dom';
 import AppToolbar from '../Apptoolbar/Apptoolbar';
 import Navigation from '../DocumentationNavigation/DocumentationNavigation';
-import { DocumentationProps } from '../Documentation/Documentation';
 import * as _errors from '../errors.json';
 
 export interface ErrorData {
@@ -21,7 +20,7 @@ export interface ErrorInterface {
 
 const errors:ErrorInterface = _errors;
 
-function ErrorDocumentation({ userConfiguration }:DocumentationProps) {
+function ErrorDocumentation() {
     document.title = "TML Errors";
 
     const navArray = [
@@ -32,7 +31,7 @@ function ErrorDocumentation({ userConfiguration }:DocumentationProps) {
     const validatorKeys = Object.keys(errors.validator);
     return (
         <Container>
-            <AppToolbar userConfiguration={userConfiguration} isDocumentation />
+            <AppToolbar isDocumentation />
             <Navigation navArray={navArray}></Navigation>
             <div className="content">
                 <h1>Turing Machine Program Errors</h1>

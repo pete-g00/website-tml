@@ -1,9 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import './Editor.css';
 import * as monaco from 'monaco-editor';
 import { getProgram } from '../MonacoConfig';
 import { CodePosition, ProgramContext } from 'parser-tml';
-import { UserConfiguration } from '../../App';
+import { UserConfigContext } from '../UserConfigContextProvider/UserConfigContextProvider';
 import { Snackbar } from '@mui/material';
 import MuiAlert from '@mui/material/Alert';
 import _examples from '../examples.json';
@@ -12,16 +12,16 @@ const examples:{[key:string]:string} = _examples;
 
 interface EditorProps {
     setProgram: (program:ProgramContext|undefined) => void;
-    userConfiguration:UserConfiguration;
     isTapeExecuting:boolean;
     executingPositions:CodePosition[];
 }
 
-function Editor({ userConfiguration, setProgram, isTapeExecuting, executingPositions }:EditorProps) {
+function Editor({ setProgram, isTapeExecuting, executingPositions }:EditorProps) {
     const divEl = useRef<HTMLDivElement>(null);
     const editor = useRef<monaco.editor.IStandaloneCodeEditor|null>(null);
     const markers:monaco.editor.IMarkerData[] = [];
     const event = useRef<monaco.IDisposable|undefined>(undefined);
+    const userConfig = useContext(UserConfigContext);
 
     function handleChange() {
         if (!isTapeExecuting && editor.current) {
@@ -77,18 +77,21 @@ function Editor({ userConfiguration, setProgram, isTapeExecuting, executingPosit
     useEffect(() => {
         if (editor.current) {
             editor.current.updateOptions({
-                theme: userConfiguration.editorTheme,
-                fontSize: userConfiguration.editorFontSize.value,
-                lineNumbers: userConfiguration.showEditorLineNumber ? "on" : "off"
+                theme: userConfig.editorTheme,
+                fontSize: userConfig.editorFontSize.value,
+                lineNumbers: userConfig.showEditorLineNumber ? "on" : "off"
             });
-            if (userConfiguration.exampleKey) {
-                const value = examples[userConfiguration.exampleKey];
-                editor.current.setValue(value);
-                handleChange();
-                userConfiguration.setExampleKey(userConfiguration, undefined);
-            }
         }
-    }, [userConfiguration]);
+    });
+
+    useEffect(() => {
+        if (userConfig.exampleKey && editor.current) {
+            const value = examples[userConfig.exampleKey];
+            editor.current.setValue(value);
+            handleChange();
+            userConfig.dispatch({type: 'SET_EXAMPLE_KEY', exampleKey: undefined});
+        }
+    });
 
     useEffect(() => {
         if (editor.current) {

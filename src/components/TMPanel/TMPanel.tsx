@@ -16,10 +16,9 @@ interface TMPanelProps {
     currentState: string|undefined;
     currentEdge: string|undefined;
     isTapeExecuting: boolean;
-    transitionTime: number;
 }
 
-function TMPanel({ turingMachine, currentEdge, currentState, isTapeExecuting, transitionTime }:TMPanelProps) {
+function TMPanel({ turingMachine, currentEdge, currentState, isTapeExecuting }:TMPanelProps) {
     // whether the convert button is enabled
     const [isConvertEnabled, setIsConvertEnabled] = useState(true);
     
@@ -51,7 +50,7 @@ function TMPanel({ turingMachine, currentEdge, currentState, isTapeExecuting, tr
             <Box textAlign="center"><h2>Turing Machine</h2></Box>
             <div className='tm-screen'>
                 {displayScreen === Display.FSM ?
-                    (<FSMPanel transitionTime={transitionTime} currentEdge={currentEdge} currentState={currentState} turingMachine={currentTM!}/>)
+                    (<FSMPanel currentEdge={currentEdge} currentState={currentState} turingMachine={currentTM!}/>)
                 : displayScreen === Display.DEF ? 
                     (<DefTMPanel turingMachine={currentTM!}/>)
                     : (<></>)

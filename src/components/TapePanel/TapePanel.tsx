@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Box } from '@mui/material';
 import { CodePosition, ProgramContext, TuringMachine } from 'parser-tml';
 import TapeInput from '../TapeInput/TapeInput';
 import TapeScreen from '../TapeScreen/TapeScreen';
 import './TapePanel.css';
+import { UserConfigContext } from '../UserConfigContextProvider/UserConfigContextProvider';
 
 interface TapePanelProps {
     turingMachine: TuringMachine|undefined;
@@ -11,14 +12,14 @@ interface TapePanelProps {
     setExecutingPositions:(executingPositions:CodePosition[]) => void;
     setCurrentState: (state:string|undefined) => void;
     setCurrentEdge: (edge:string|undefined) => void;
-    transitionTime:number;
     setIsTapeExecuting: (isTapeExecuting:boolean) => void;
 }
 
-function TapePanel({ turingMachine, program, setExecutingPositions, setCurrentEdge, setCurrentState, setIsTapeExecuting, transitionTime }:TapePanelProps) {
+function TapePanel({ turingMachine, program, setExecutingPositions, setCurrentEdge, setCurrentState, setIsTapeExecuting }:TapePanelProps) {
     const [tape, setTape] = useState("");
     const [currentTM, setCurrentTM] = useState<TuringMachine|undefined>(undefined);
     const [currentProgram, setCurrentProgram] = useState<ProgramContext|undefined>(undefined);
+    const { transitionTime } = useContext(UserConfigContext);
 
     function goToTapeScreen() {
         setCurrentTM(turingMachine);
