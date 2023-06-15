@@ -4,48 +4,67 @@ import themes from './editorThemes.json';
 
 monaco.languages.register({id: "TMProgram"});
 
-const keywords = ['alphabet', 'module', 'switch', 'if', 'while', 'move', 'changeto', 'goto'];
-const typeKeywords = ["accept", "reject", "left", "right", "blank", "tapehead"];
+const keywords = ['alphabet', 'module', 'switch', 'if', 'else', 'while', 'move', 'changeto', 'goto'];
+const typeKeywords = ["accept", "reject", "left", "right", "start", "end", "blank", "tapehead"];
 
-monaco.languages.setMonarchTokensProvider("TMProgram", {
+const tmConfig: monaco.languages.LanguageConfiguration = {
+    comments: {
+        lineComment: "#"
+    },
+    brackets: [
+        ["[", "]"],
+        ["(", ")"]
+    ],
+    autoClosingPairs: [
+        {open: '[', close: ']'},
+        {open: '(', close: ')'},
+    ],
+    surroundingPairs: [
+        {open: '[', close: ']'},
+        {open: '(', close: ')'},
+    ],
+    onEnterRules: [
+        {
+            beforeText: /:/,
+            action: {indentAction: monaco.languages.IndentAction.Indent}
+        },
+        {
+            beforeText: /accept|reject|goto.*\)/,
+            action: {indentAction: monaco.languages.IndentAction.Outdent}
+        }
+    ]
+};
+
+monaco.languages.setLanguageConfiguration('TMProgram', tmConfig);
+
+const tmLanguage:monaco.languages.IMonarchLanguage = {
+    defaultToken: "invalid",
     ignoreCase: false,
-    defaultToken: 'invalid',
+    keywords,
+    typeKeywords,
+    brackets: [
+        {open: "[", close: "]", token: "delimiter.bracket"},
+        {open: "(", close: ")", token: "delimiter.parenthesis"},
+    ],
     tokenizer: {
         root: [
+            [/[,:=]/, 'delimiter'],
+            [/[\[\]()]/, "@brackets"],
+            [/#.*$/, 'comment'],
+
+            [/@[a-zA-Z_]\w*/, 'tag'],
             [/[a-zA-Z0-9_$][\w$]*/, {
                 cases: {
                     '@typeKeywords': 'predefined',
                     '@keywords': 'keyword',
                     '@default': 'identifier',
                 }
-            }],
-            [/\/\/.*$/, 'comment'],
-            [/[{}]/, "delimiter.curly"],
-            [/[,=]/, 'delimiter'],
+            }]
         ]
-    },
-    comments: [
-        [/\/\//, 'comment']
-    ],
-    keywords,
-    typeKeywords
-});
-
-monaco.languages.setLanguageConfiguration('TMProgram', {
-    surroundingPairs: [
-        {open: '{', close: '}'}
-    ],
-    autoClosingPairs: [
-        {open: '{', close: '}'},
-    ],
-    indentationRules: {
-        increaseIndentPattern: /{/,
-        decreaseIndentPattern: /}/,
-    },
-    comments: {
-        lineComment: "//"
     }
-});
+};
+
+monaco.languages.setMonarchTokensProvider("TMProgram", tmLanguage);
 
 function getCompletionItem(model:monaco.editor.ITextModel, position:monaco.Position, keyword:string) {
     return {
@@ -61,11 +80,25 @@ function getCompletionItem(model:monaco.editor.ITextModel, position:monaco.Posit
     };
 }
 
+function filterValues(value:string) {
+    // const commentsRemoved = value.replaceAll(/#.*\n|#.*$/g, "");
+    const splitValues = value.split(/ |:|\(|\)|\[|\]|#|\n/);
+    const filtered = splitValues.filter(
+        value => !keywords.includes(value) && !typeKeywords.includes(value)
+    );
+
+    return filtered;
+}
+
 monaco.languages.registerCompletionItemProvider("TMProgram", {
     provideCompletionItems: (model, position) => {
+        // TODO: if comment, then get comment suggestions
+
+        // otherwise, take normal suggestions
         const suggestions = [
             ...keywords.map(keyword => getCompletionItem(model, position, keyword)),
-            ...typeKeywords.map(keyword => getCompletionItem(model, position, keyword))
+            ...typeKeywords.map(keyword => getCompletionItem(model, position, keyword)),
+            ...filterValues(model.getValue()).map(keyword => getCompletionItem(model, position, keyword))
         ];
         return {suggestions};
     }

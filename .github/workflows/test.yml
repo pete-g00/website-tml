@@ -1,4 +1,4 @@
-name: Deploy the website on github
+name: Lint and test the website
 
 on:
   push:
@@ -27,8 +27,8 @@ jobs:
       if: steps.cache-nodemodules.outputs.cache-hit != 'true'
       run: npm ci
     
-    - name: build
-      run: npm run build --prod
+    # - name: build
+    #   run: npm run build --omit=dev
     
     - name: lint
       run: npm run lint

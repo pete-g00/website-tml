@@ -177,7 +177,7 @@ function TapeScreen({ tapeValue, turingMachine, setExecutingPositions, program, 
             ? transitionLeft(tapeHeadIndex, transition.letter) 
             : transitionRight(tapeHeadIndex, transition.letter);
 
-        const executingPositions = tmpExecutorRef.current.currentBasicBlock?.positions;
+        const executingPosition = tmpExecutorRef.current.currentBlock?.position;
         
         tmExecutorRef.current.execute();
         tmpExecutorRef.current.execute();
@@ -185,7 +185,7 @@ function TapeScreen({ tapeValue, turingMachine, setExecutingPositions, program, 
         setCurrentEdge(transitionLabel);
         setTerminationMessage();
         handleSnackbarClose();
-        setExecutingPositions(executingPositions ?? []);
+        setExecutingPositions(executingPosition === undefined ? [] : [executingPosition]);
         
         stepId.current = setTimeout(() => {
             setCurrentState(tmExecutorRef.current.currentState);

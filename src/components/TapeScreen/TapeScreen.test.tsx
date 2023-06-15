@@ -52,7 +52,7 @@ test("Initially, the step button isn't disabled", () => {
 test("Initially, the current state is the initial state", () => {
     render(<TapeScreen goToTapeInput={goToTapeInput} setCurrentState={setCurrentState} setCurrentEdge={setCurrentEdge} 
         setExecutingPositions={setExecutingPositions} transitionTime={1000} program={program} tapeValue='' turingMachine={turingMachine}/>);
-    expect(currentState).toBe("isDiv20");
+    expect(currentState).toBe("isDiv2.0");
 });
 
 test("Initially, the current edge isn't defined", () => {
@@ -81,7 +81,7 @@ test("After stepping starts, the current edge gets updated", () =>  {
         setExecutingPositions={setExecutingPositions} transitionTime={1000} program={program} tapeValue='' turingMachine={turingMachine}/>);
     const stepButton = screen.getByText("Step");
     fireEvent.click(stepButton);
-    expect(currentEdge).toBe('isDiv20-isDiv21-_');
+    expect(currentEdge).toBe('isDiv2.0-isDiv2.1-0-1-_');
 });
 
 test("After stepping starts, the current state doesn't get updated", async () =>  {
@@ -89,7 +89,7 @@ test("After stepping starts, the current state doesn't get updated", async () =>
         setExecutingPositions={setExecutingPositions} transitionTime={1000} program={program} tapeValue='' turingMachine={turingMachine}/>);
     const stepButton = screen.getByText("Step");
     fireEvent.click(stepButton);
-    expect(currentState).toBe('isDiv20');
+    expect(currentState).toBe('isDiv2.0');
 });
 
 test("After stepping starts, the position gets updated", async () =>  {
@@ -97,7 +97,7 @@ test("After stepping starts, the position gets updated", async () =>  {
         setExecutingPositions={setExecutingPositions} transitionTime={1000} program={program} tapeValue='' turingMachine={turingMachine}/>);
     const stepButton = screen.getByText("Step");
     fireEvent.click(stepButton);
-    expect(executingPositions[0]).toStrictEqual(new CodePosition(7, 8, 8, 17));
+    expect(executingPositions[0]).toStrictEqual(new CodePosition(4, 5, 4, 12));
 });
 
 test("After stepping ends, the back button is enabled", async () =>  {

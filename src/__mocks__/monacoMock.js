@@ -25,5 +25,8 @@ export const languages =  {
     register: emptyFun,
     registerCompletionItemProvider: emptyFun,
     setLanguageConfiguration: emptyFun,
-    setMonarchTokensProvider: emptyFun
+    setMonarchTokensProvider: emptyFun,
+    IndentAction: {
+        Indent: ""
+    }
 };

@@ -47,6 +47,7 @@ function Editor({ setProgram, isTapeExecuting, executingPositions }:EditorProps)
                 lineNumbers: "on",
                 wordWrap: "on",
                 detectIndentation: true,
+                autoIndent: "full"
             });
             editor.current = _editor;
             _editor.onDidChangeModelContent(handleChange);
@@ -104,7 +105,7 @@ function Editor({ setProgram, isTapeExecuting, executingPositions }:EditorProps)
                     startColumn: position.startColNumber+1,
                     startLineNumber: position.startLineNumber+1,
                     message: "The code being executed",
-                    severity: monaco.MarkerSeverity.Info
+                    severity: monaco.MarkerSeverity.Info,
                 });
             }
             setTimeout(() => {
