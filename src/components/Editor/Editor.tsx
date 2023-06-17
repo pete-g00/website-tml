@@ -41,7 +41,7 @@ function Editor({ setProgram, isTapeExecuting, executingPositions }:EditorProps)
             const _editor = monaco.editor.create(divEl.current, {
                 value: examples.isDiv2,
                 language: 'TMProgram',
-                theme: "dracula",
+                theme: userConfig.editorTheme,
                 automaticLayout: true,
                 fontSize: 14,
                 lineNumbers: "on",

@@ -67,7 +67,7 @@ function HomePage() {
     }, [program]);
 
     return (
-        <div>
+        <div className='homepage'>
             <AppToolbar />
             <Grid container>
                 <Grid item xs={12} sm={6}>

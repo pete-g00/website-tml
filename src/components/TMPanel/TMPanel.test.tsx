@@ -5,6 +5,14 @@ import examples from '../examples.json';
 import { CodeConverter, CodeParser } from 'parser-tml';
 import { UserConfigContextProvider } from '../UserConfigContextProvider/UserConfigContextProvider';
 
+class ResizeObserver {
+    observe = jest.fn();
+    unobserve = jest.fn();
+    disconnect = jest.fn();
+}
+
+window.ResizeObserver = ResizeObserver;
+
 const isDiv2Code = examples.isDiv2;
 const parser = new CodeParser(isDiv2Code);
 const isDiv2Program = parser.parse();

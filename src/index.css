@@ -8,8 +8,10 @@ html, body {
     background-color: rgb(230, 230, 230);
 }
 
-html div.homepage, body div.homepage {
-    overflow: hidden;
+@media (min-width: 600px)  {
+    body div.homepage {
+        overflow-y: hidden
+    }
 }
 
 code {

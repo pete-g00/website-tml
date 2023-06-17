@@ -1,7 +1,12 @@
 .Editor {
 	width: 100%;
-	height: max(95vh, 100%);
-	resize: vertical;
+	height: 92vh;
+	overflow: hidden;
+	position: relative;
+}
+
+.monaco-editor {
+	position: absolute;
 }
 
 .monaco-hover {
