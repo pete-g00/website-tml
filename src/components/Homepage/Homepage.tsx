@@ -12,6 +12,8 @@ import * as _examples from '../examples.json';
 const examples :{[key:string]: string} = _examples;
 
 function HomePage() {
+    document.body.classList.add("homepage");
+
     const [program, setProgram] = useState<ProgramContext|undefined>(undefined);
     const [turingMachine, setTuringMachine] = useState<TuringMachine|undefined>(undefined);
 

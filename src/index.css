@@ -9,8 +9,8 @@ html, body {
 }
 
 @media (min-width: 600px)  {
-    body div.homepage {
-        overflow-y: hidden
+    body.homepage {
+        overflow-y: hidden;
     }
 }
 

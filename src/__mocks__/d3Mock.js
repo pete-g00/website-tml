@@ -15,11 +15,13 @@ export function select() {
         },
         transition: () => {
             return {
-                duration: select
+                duration: select,
+                on: select,
             };
         },
         selectAll: select,
         select,
+        interrupt: emptyFn
     };
 }
 

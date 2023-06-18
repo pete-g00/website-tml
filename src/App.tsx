@@ -49,7 +49,6 @@ function App() {
           <AppDrawer/>
             <Routes>
               <Route path='/' element={<HomePage/>} />
-              <Route path="/" element={<div>Content</div>}/>
               <Route path='/documentation' element={<Documentation/>} />
               <Route path='/documentation/errors/:label' element={<PreciseErrorDocumentation/>} />
               <Route path='/documentation/errors' element={<ErrorDocumentation/>} />
