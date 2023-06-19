@@ -1,11 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useContext } from 'react';
 import TapeEntry from '../TapeEntry/TapeEntry';
 import * as d3 from 'd3';
 import { Button } from '@mui/material';
-import { ProgramContext, TuringMachine, TMExecutor, Direction, TerminationState, CodePosition, CodeExecutor } from 'parser-tml';
+import { TMExecutor, Direction, TerminationState, CodeExecutor } from 'parser-tml';
 import './TapeScreen.css';
-import Snackbar from '@mui/material/Snackbar';
-import MuiAlert from '@mui/material/Alert';
+import { HomePageConfigContext } from '../HomePageConfigContextProvider/HomePageConfigContextProvider';
+import { UserConfigContext } from '../UserConfigContextProvider/UserConfigContextProvider';
 
 type TileAnimation = d3.Transition<SVGGElement | null, unknown, null, undefined>;
 
@@ -23,23 +23,17 @@ function getNextOffsetIndex(i:number) {
 }
 
 interface TapeScreenProps {
-    turingMachine:TuringMachine;
-    program:ProgramContext;
-    setExecutingPositions:(executingPositions:CodePosition[]) => void;
     tapeValue:string;
-    goToTapeInput:() => void;
-    setCurrentState: (state:string|undefined) => void;
-    setCurrentEdge: (edge:string|undefined) => void;
-    transitionTime:number;
+    setTapeExecutionMessage: (msg:string) => void;
 }
 
-function TapeScreen({ 
-        tapeValue, turingMachine, setExecutingPositions, 
-        program, goToTapeInput, setCurrentEdge, 
-        setCurrentState, transitionTime }:TapeScreenProps) {
+function TapeScreen({ tapeValue, setTapeExecutionMessage }:TapeScreenProps) {
+    const homePageConfig = useContext(HomePageConfigContext);
+    const { transitionTime } = useContext(UserConfigContext);
+
     const length = 17;
-    const tmExecutor = new TMExecutor(tapeValue, turingMachine);
-    const tmpExecutor = new CodeExecutor(tapeValue, program);
+    const tmExecutor = new TMExecutor(tapeValue, homePageConfig.tapePanelTM!);
+    const tmpExecutor = new CodeExecutor(tapeValue, homePageConfig.tapePanelProgram!);
 
     const tiles = useRef(
         Array(17).fill("").map((_, i) => tapeValue[i-2]?.trim() ?? "")
@@ -51,14 +45,9 @@ function TapeScreen({
     const playing = useRef(false);
     const [playMessage, setPlayMessage] = useState<"Play"|"Pause">("Play");
    
-    const snackbarId = useRef<NodeJS.Timeout|undefined>(undefined);
-
     // keep track of the current translations
     const translations = useRef(new Array(length).fill(0));
     
-    const [msg, setMsg] = useState<string>("");
-    const [showSnackbar, setShowSnackbar] = useState(false);
-
     const tmExecutorRef = useRef(tmExecutor);
     const tmpExecutorRef = useRef(tmpExecutor);
 
@@ -109,7 +98,7 @@ function TapeScreen({
     function moveTileToEnd(i:number, duration:number, animation?:TileAnimation|undefined) {
         animation ??= d3.select(gRefs[i].current).transition();
         translations.current[i] = (length - 1 - i)*50;
-        console.log(`Moving tile ${i} to the end with value ${translations.current[i]}`);
+        // console.log(`Moving tile ${i} to the end with value ${translations.current[i]}`);
         
         return animation
             .transition()
@@ -127,7 +116,7 @@ function TapeScreen({
     function moveTileToStart(i:number, duration:number, animation?:TileAnimation|undefined) {
         animation ??= d3.select(gRefs[i].current).transition();
         translations.current[i] = -i*50;
-        console.log(`Moving tile ${i} to the start with value ${translations.current[i]}`);
+        // console.log(`Moving tile ${i} to the start with value ${translations.current[i]}`);
 
         return animation
             .transition()
@@ -147,7 +136,7 @@ function TapeScreen({
         // the right most index is length-2, adding some index offset (for move start/end)
         const rightMostIndex = (length-2)+indexOffset; 
         const rightMostValue = tmExecutorRef.current.tape.get(rightMostIndex);
-        console.log(`Setting tile[${leftMostTile}] to be tape[${rightMostIndex}]="${rightMostValue}"`);
+        // console.log(`Setting tile[${leftMostTile}] to be tape[${rightMostIndex}]="${rightMostValue}"`);
         
         if (value === undefined) {
             changeValues({i: leftMostTile, val: rightMostValue});
@@ -167,7 +156,7 @@ function TapeScreen({
         // the left most index is -3 adding some index offset (for move start/end)
         const leftMostIndex = -3-indexOffset; 
         const leftMostValue = tmExecutorRef.current.tape.get(leftMostIndex);
-        console.log(`Setting tile[${rightMostTile}] to be tape[${leftMostIndex}]="${leftMostValue}"`);
+        // console.log(`Setting tile[${rightMostTile}] to be tape[${leftMostIndex}]="${leftMostValue}"`);
         
         if (value === undefined) {
             changeValues({i: rightMostTile, val: leftMostValue});   
@@ -180,7 +169,7 @@ function TapeScreen({
         tapeHeadIndex.current = nextOffset;
         
         tmExecutorRef.current.execute();
-        setCurrentState(tmExecutorRef.current.currentState);
+        homePageConfig.dispatch({type: 'SET_CURRENT_STATE', state: tmExecutorRef.current.currentState});
         const terminated = tmExecutorRef.current.terminationStatus !== undefined;
 
         if (terminated) {
@@ -307,11 +296,11 @@ function TapeScreen({
         });
     }
 
-    function setTerminationMessage() {
-        if (tmExecutorRef.current.terminationStatus === TerminationState.ACCEPT) {
-            setMsg("Tape Accepted");
+    function getTerminationMessage() {
+        if (tmpExecutorRef.current.terminationStatus === TerminationState.ACCEPT) {
+            return "; Tape Accepted";
         } else if (tmExecutorRef.current.terminationStatus === TerminationState.REJECT) {
-            setMsg("Tape Rejected");
+            return "; Tape Rejected";
         }
     }
 
@@ -323,7 +312,7 @@ function TapeScreen({
             const prevTapeIdx = tmpExecutorRef.current.tape.currentIndex;
 
             const currentState = tmExecutorRef.current.currentState;
-            const tmState = turingMachine.getState(currentState)!;
+            const tmState = homePageConfig.tapePanelTM!.getState(currentState)!;
             const currentTapeValue = tiles.current[tapeHeadIndex.current];
             const transition = tmState.transition(currentTapeValue)!;
 
@@ -332,13 +321,13 @@ function TapeScreen({
             const letters = currentEdge.letters.map((val) => val.length === 0 ? "_" : val).join("-");
             const transitionLabel = `${currentEdge.currentState}-${currentEdge.nextState}-${letters}`;
         
-            // TODO: Find the right case?
-            const executingPosition = tmpExecutorRef.current.currentBlock?.position;
+            const executingPosition = tmpExecutorRef.current.currentBasicBlock?.position;
             tmpExecutorRef.current.execute();
 
             const nextTapeIdx = tmpExecutorRef.current.tape.currentIndex;
             const idxOffset = Math.abs(nextTapeIdx - prevTapeIdx);
             const duration = idxOffset <= 1 ? transitionTime : transitionTime/3;
+
             let msg = "";
             let animation:TileAnimation;
             if (transition.direction === Direction.LEFT) {
@@ -362,17 +351,17 @@ function TapeScreen({
                 msg = "Moving to the end";
                 transitionEnd(transition.letter, duration, idxOffset, onAnimationCompleted);
             }
-            setMsg(msg);
+            msg += getTerminationMessage() ?? "";
+            setTapeExecutionMessage(msg);
 
-            setCurrentEdge(transitionLabel);
-            setTerminationMessage();
-            handleSnackbarClose();
-            setExecutingPositions(executingPosition === undefined ? [] : [executingPosition]);
             
-            snackbarId.current = setTimeout(() => {
-                setShowSnackbar(true);
-            }, 100);
-            
+            homePageConfig.dispatch({type: 'SET_CURRENT_EDGE', edge: transitionLabel});
+            if (executingPosition === undefined) {
+                homePageConfig.dispatch({type: 'REMOVE_EXECUTING_POSITION'});
+            } else {
+                homePageConfig.dispatch({type: 'ADD_EXECUTING_POSITION', position: executingPosition});
+            }
+                        
             return animation!;
         }
     }
@@ -396,29 +385,22 @@ function TapeScreen({
     }
 
     useEffect(() => {
-        setCurrentState(tmExecutorRef.current.currentState);
+        homePageConfig.dispatch({type: 'SET_CURRENT_STATE', state: tmExecutorRef.current.currentState});
+        setTapeExecutionMessage(String.fromCharCode(160));
+        
         // get the text in the tiles correctly placed 
         for (let i=0; i<length; i++) {
             textRefs[i].current!.textContent = tiles.current[i];
         }
 
         return () => {
-            if (snackbarId.current) {
-                clearTimeout(snackbarId.current);
-            }
+            setTapeExecutionMessage(String.fromCharCode(160));
             // interrupt the transition
             for (let i=0; i<length; i++) {
                 d3.select(gRefs[i].current).interrupt();
             }
         };
     }, []);
-
-    function handleSnackbarClose(_event?:any, reason?: string) {
-        if (reason === 'clickaway') {
-          return;
-        }
-        setShowSnackbar(false);
-    }
 
     return (
         <div>
@@ -436,14 +418,12 @@ function TapeScreen({
                 </svg>
             </div>
             <div className='buttons'>
-                <Button color='secondary' onClick={goToTapeInput} disabled={!canGoBack} variant='contained'>Back</Button>
+                <Button color='secondary' onClick={() => homePageConfig.dispatch({type: 'GO_TO_TAPE_INPUT'})} disabled={!canGoBack} variant='contained'>
+                    Back
+                </Button>
                 <Button onClick={handlePlay} disabled={!canPlay} variant='contained'>{playMessage}</Button>
                 <Button onClick={() => handleStep()} disabled={!canStep} variant='contained'>Step</Button>
             </div>
-            <Snackbar open={showSnackbar} onClick={() => setShowSnackbar(true)} onClose={handleSnackbarClose} 
-                autoHideDuration={transitionTime*3} anchorOrigin={{vertical: 'bottom', horizontal: 'center'}}>
-                <MuiAlert elevation={6} variant="filled" severity='info' onClose={handleSnackbarClose} sx={{ width: '100%' }}>{msg}</MuiAlert>
-            </Snackbar>
         </div>
     );
 }

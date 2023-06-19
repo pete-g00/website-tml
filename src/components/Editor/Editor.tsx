@@ -2,36 +2,32 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import './Editor.css';
 import * as monaco from 'monaco-editor';
 import { getProgram } from '../MonacoConfig';
-import { CodePosition, ProgramContext } from 'parser-tml';
 import { UserConfigContext } from '../UserConfigContextProvider/UserConfigContextProvider';
 import { Snackbar } from '@mui/material';
 import MuiAlert from '@mui/material/Alert';
 import _examples from '../examples.json';
+import { HomePageConfigContext } from '../HomePageConfigContextProvider/HomePageConfigContextProvider';
 
 const examples:{[key:string]:string} = _examples;
 
-interface EditorProps {
-    setProgram: (program:ProgramContext|undefined) => void;
-    isTapeExecuting:boolean;
-    executingPositions:CodePosition[];
-}
-
-function Editor({ setProgram, isTapeExecuting, executingPositions }:EditorProps) {
+function Editor() {
     const divEl = useRef<HTMLDivElement>(null);
     const editor = useRef<monaco.editor.IStandaloneCodeEditor|null>(null);
     const markers:monaco.editor.IMarkerData[] = [];
     const event = useRef<monaco.IDisposable|undefined>(undefined);
+    
     const userConfig = useContext(UserConfigContext);
+    const homePageConfig = useContext(HomePageConfigContext);
 
     function handleChange() {
-        if (!isTapeExecuting && editor.current) {
+        if (!homePageConfig.isTapeExecuting && editor.current) {
             const program = getProgram(editor.current.getValue(), markers);
             monaco.editor.setModelMarkers(editor.current.getModel()!, "validate-TMP", markers);
             
             if (markers.length === 0) {
-                setProgram(program);
+                homePageConfig.dispatch({type: 'SET_PROGRAM', program});
             } else {
-                setProgram(undefined);
+                homePageConfig.dispatch({type: 'SET_PROGRAM', program: undefined});
             }
         }
     }
@@ -60,7 +56,7 @@ function Editor({ setProgram, isTapeExecuting, executingPositions }:EditorProps)
     }, []);
 
     useEffect(() => {
-        if (isTapeExecuting) {
+        if (homePageConfig.isTapeExecuting) {
             const value = editor.current?.getValue();
             event.current = editor.current?.onDidChangeModelContent(() => {
                 if (editor.current?.getValue() !== value) {
@@ -73,7 +69,7 @@ function Editor({ setProgram, isTapeExecuting, executingPositions }:EditorProps)
             monaco.editor.setModelMarkers(editor.current!.getModel()!, "executing-code", markers);
             event.current?.dispose();
         }
-    }, [isTapeExecuting]);
+    });
 
     useEffect(() => {
         if (editor.current) {
@@ -98,7 +94,7 @@ function Editor({ setProgram, isTapeExecuting, executingPositions }:EditorProps)
         if (editor.current) {
             markers.length = 0;
             monaco.editor.setModelMarkers(editor.current!.getModel()!, "executing-code", markers);
-            for (const position of executingPositions) {
+            for (const position of homePageConfig.executingPositions) {
                 markers.push({
                     endColumn: position.endColNumber+1,
                     endLineNumber: position.endLineNumber,
@@ -112,7 +108,7 @@ function Editor({ setProgram, isTapeExecuting, executingPositions }:EditorProps)
                 monaco.editor.setModelMarkers(editor.current!.getModel()!, "executing-code", markers);
             }, 100);
         }
-    }, [executingPositions]);
+    });
 
     const [showSnackbar, setShowSnackbar] = useState(false);
     function handleSnackbarClose(event?: React.SyntheticEvent | Event, reason?: string) {

@@ -3,7 +3,7 @@ import { purple, green } from '@mui/material/colors';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { LinkProps } from '@mui/material';
 import { Link as RouterLink, LinkProps as RouterLinkProps, Route, Routes, Navigate, HashRouter as Router } from 'react-router-dom';
-import HomePage from './components/Homepage/Homepage';
+import HomePage from './components/HomePage/HomePage';
 import Documentation from './components/Documentation/Documentation';
 import ErrorDocumentation from './components/ErrorDocumentation/ErrorDocumentation';
 import PreciseErrorDocumentation from './components/PreciseErrorDocumentation/PreciseErrorDocumentation';

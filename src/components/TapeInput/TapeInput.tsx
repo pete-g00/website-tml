@@ -1,30 +1,33 @@
-import React, { useState }  from 'react';
+import React, { useState, useContext }  from 'react';
 import { Box, Button, TextField } from '@mui/material';
+import { HomePageConfigContext } from '../HomePageConfigContextProvider/HomePageConfigContextProvider';
 
 interface TapeInputProps {
     setTape:(value:string) => void;
-    goToTapeScreen:() => void;
-    alphabet:Set<string>|undefined;
     tape:string;
 }
 
+function validateTape(tape:string, alphabet:Set<string>) {
+    for (let i = 0; i < tape.length; i++) {
+        if (tape[i] !== " " && !alphabet.has(tape[i])) {
+            return true;
+        }
+    }
 
-function TapeInput({goToTapeScreen, tape, setTape, alphabet}:TapeInputProps) {
+    return false;
+}
+
+function TapeInput({ tape, setTape }:TapeInputProps) {
     const [hasError, setHasError] = useState(false);
+    const homePageConfig = useContext(HomePageConfigContext);
 
     function handleSubmit() {
-        if (alphabet) {
-            let errorState = false;
-            for (let i = 0; i < tape.length; i++) {
-                if (tape[i] !== " " && !alphabet.has(tape[i])) {
-                    errorState = true;
-                }
-            }
-    
+        if (homePageConfig.actualTM?.alphabet) {    
+            const errorState = validateTape(tape, homePageConfig.actualTM.alphabet);
             setHasError(errorState);
     
             if (!errorState) {
-                goToTapeScreen();
+                homePageConfig.dispatch({type: 'GO_TO_TAPE_SCREEN'});
             }
         }
     }
@@ -42,10 +45,12 @@ function TapeInput({goToTapeScreen, tape, setTape, alphabet}:TapeInputProps) {
                 <div>
                     <TextField autoComplete='off'variant='outlined' label='Tape Value' error={hasError} 
                         helperText={hasError ? 'Invalid Tape Value' : ' '} onChange={(e) => setTape(e.target.value)} 
-                        disabled={alphabet === undefined} value={tape}/>
+                        disabled={homePageConfig.actualProgram === undefined} value={tape}/>
                 </div>
                 <div>
-                    <Button variant='contained' onClick={handleSubmit} disabled={alphabet === undefined}>Execute</Button>
+                    <Button variant='contained' onClick={handleSubmit} disabled={homePageConfig.actualProgram === undefined}>
+                        Execute
+                    </Button>
                 </div>
             </Box>
         </form>

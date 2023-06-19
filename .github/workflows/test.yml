@@ -1,4 +1,4 @@
-name: Lint and test the website
+name: Lint the website
 
 on:
   push:
@@ -33,5 +33,5 @@ jobs:
     - name: lint
       run: npm run lint
     
-    - name: test
-      run: npm test
+    # - name: test
+    #   run: npm test

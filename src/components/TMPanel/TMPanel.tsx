@@ -1,47 +1,25 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Button } from '@mui/material';
 import { Box } from '@mui/system';
 import './TMPanel.css';
-import { TuringMachine } from 'parser-tml';
 import FSMPanel from '../FSMPanel/FSMPanel';
 import ButtonGroup from '@mui/material/ButtonGroup';
 import DefTMPanel from '../DefTMPanel/DefTMPanel';
+import { HomePageConfigContext, TMPanelScreen } from '../HomePageConfigContextProvider/HomePageConfigContextProvider';
 
-enum Display {
-    FSM, DEF, NEITHER
-}
-
-interface TMPanelProps {
-    turingMachine: TuringMachine|undefined;
-    currentState: string|undefined;
-    currentEdge: string|undefined;
-    isTapeExecuting: boolean;
-}
-
-function TMPanel({ turingMachine, currentEdge, currentState, isTapeExecuting }:TMPanelProps) {
+function TMPanel() {
     // whether the convert button is enabled
     const [isConvertEnabled, setIsConvertEnabled] = useState(true);
+    const homePageConfig = useContext(HomePageConfigContext);
     
-    // the TM actually being shown
-    const [currentTM, setCurrentTM] = useState<TuringMachine|undefined>(undefined);
-    
-    // what content is being displayed (neither = prompt, fsm = finite state machine or def = definition)
-    const [displayScreen, setDisplayScreen] = useState(Display.NEITHER);
-
     useEffect(() => {
-        setIsConvertEnabled(turingMachine !== undefined);
-    }, [turingMachine]);
+        setIsConvertEnabled(homePageConfig.actualTM !== undefined);
+    });
 
-    useEffect(() => {
-        if (isTapeExecuting && currentTM !== undefined) {
-            setCurrentTM(turingMachine);
-        }
-    }, [isTapeExecuting]);
-
-    function showScreen(screenValue:Display) {
+    function showScreen(screen:TMPanelScreen) {
         return () => {
-            setCurrentTM(turingMachine);
-            setDisplayScreen(screenValue);
+            homePageConfig.dispatch({type: 'CONNECT_PANEL_TM'});
+            homePageConfig.dispatch({type: 'SET_TM_PANEL_SCREEN', screen});
         };
     }
 
@@ -49,21 +27,21 @@ function TMPanel({ turingMachine, currentEdge, currentState, isTapeExecuting }:T
         <div className='tm-panel'>
             <Box textAlign="center"><h2>Turing Machine</h2></Box>
             <div className='tm-screen'>
-                {displayScreen === Display.FSM ?
-                    (<FSMPanel currentEdge={currentEdge} currentState={currentState} turingMachine={currentTM!}/>)
-                : displayScreen === Display.DEF ? 
-                    (<DefTMPanel turingMachine={currentTM!}/>)
-                    : (<></>)
+                {homePageConfig.tmPanelScreen === "FSM" 
+                    ? <FSMPanel />
+                    : homePageConfig.tmPanelScreen === "DEF" ? 
+                    <DefTMPanel />
+                    : <></>
                 }
             </div>
             <div>
                 <Box textAlign="center">
-                    {currentTM ? <p>&nbsp;</p> : <p>Convert the Code into the Turing Machine</p>}
+                    {homePageConfig.tmPanelTM ? <p>&nbsp;</p> : <p>Convert the Code into the Turing Machine</p>}
                 </Box>
             <Box textAlign="center">
                 <ButtonGroup variant="contained" aria-label="TM Conversion Options">
-                    <Button onClick={showScreen(Display.FSM)} disabled={!isConvertEnabled}>Convert to FSM</Button>
-                    <Button onClick={showScreen(Display.DEF)} disabled={!isConvertEnabled}>Show TM Definition</Button>
+                    <Button onClick={showScreen("FSM")} disabled={!isConvertEnabled}>Convert to FSM</Button>
+                    <Button onClick={showScreen("DEF")} disabled={!isConvertEnabled}>Show TM Definition</Button>
                 </ButtonGroup>
             </Box>
             </div>

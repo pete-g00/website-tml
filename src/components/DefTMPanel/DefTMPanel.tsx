@@ -1,13 +1,10 @@
-import React from 'react';
-import { TMChange, TuringMachine } from 'parser-tml';
+import React, { useContext } from 'react';
+import { TMChange } from 'parser-tml';
 import { MathComponent } from "mathjax-react";
 import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 import "./DefTMPanel.css";
 import { Box } from '@mui/system';
-
-interface DefTMPanelProps {
-    turingMachine: TuringMachine;
-}
+import { HomePageConfigContext } from '../HomePageConfigContextProvider/HomePageConfigContextProvider';
 
 function convertValue(label:string) {
     switch (label) {
@@ -20,7 +17,10 @@ function convertValue(label:string) {
     }
 }
 
-function DefTMPanel({ turingMachine }: DefTMPanelProps) {
+function DefTMPanel() {
+    const homePageConfig = useContext(HomePageConfigContext);
+    const turingMachine = homePageConfig.tmPanelTM!;
+
     const alphabet = "\\Sigma = \\{" + Array.from(turingMachine.alphabet).join(", ") + "\\}";
     const states = "Q = \\{" + turingMachine.states.map((_, i) => {
         return "q_" + i;
