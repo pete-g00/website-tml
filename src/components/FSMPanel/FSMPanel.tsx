@@ -119,7 +119,6 @@ function FSMPanel() {
         function drawGraph() {
             const dot = convertToDot(homePageConfig.tmPanelTM!, width/height);
             if (dot !== currentDOT.current) {
-                console.log(dot);
                 currentDOT.current = dot;
                 
                 const svg = graphviz.current!.dot(dot);
@@ -166,7 +165,6 @@ function FSMPanel() {
             }
         }
 
-        console.log(homePageConfig.tmPanelTM);
         if (divElement.current && homePageConfig.tmPanelTM) {
             if (graphviz.current) {
                 drawGraph();

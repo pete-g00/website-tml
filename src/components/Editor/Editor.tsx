@@ -36,7 +36,7 @@ function Editor() {
         if (divEl.current) {
             const _editor = monaco.editor.create(divEl.current, {
                 value: examples.isDiv2,
-                language: 'TMProgram',
+                language: 'TML',
                 theme: userConfig.editorTheme,
                 automaticLayout: true,
                 fontSize: 14,

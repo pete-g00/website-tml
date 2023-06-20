@@ -3,7 +3,7 @@ import { Grid } from '@mui/material';
 import Editor from '../Editor/Editor';
 import TMPanel from '../TMPanel/TMPanel';
 import TapePanel from '../TapePanel/TapePanel';
-import AppToolbar from '../Apptoolbar/Apptoolbar';
+import AppToolbar from '../AppToolbar/AppToolbar';
 import { CodeParser } from 'parser-tml';
 import AppDrawer from '../AppDrawer/AppDrawer';
 import { UserConfigContext } from '../UserConfigContextProvider/UserConfigContextProvider';
@@ -13,8 +13,6 @@ import { HomePageConfigContext, HomePageConfigContextProvider } from '../HomePag
 const examples :{[key:string]: string} = _examples;
 
 function HomePage() {
-    document.body.classList.add("homepage");
-
     // the timeout fn to revert current edge and marker position back to undefined 
     // (animation occurs even if the previous value equals the current value)
     const [changeCurrentEdgeFn, setChangeCurrentEdgeFn] = useState<NodeJS.Timeout|undefined>(undefined);

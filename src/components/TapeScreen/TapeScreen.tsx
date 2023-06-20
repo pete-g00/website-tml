@@ -355,12 +355,7 @@ function TapeScreen({ tapeValue, setTapeExecutionMessage }:TapeScreenProps) {
             setTapeExecutionMessage(msg);
 
             
-            homePageConfig.dispatch({type: 'SET_CURRENT_EDGE', edge: transitionLabel});
-            if (executingPosition === undefined) {
-                homePageConfig.dispatch({type: 'REMOVE_EXECUTING_POSITION'});
-            } else {
-                homePageConfig.dispatch({type: 'ADD_EXECUTING_POSITION', position: executingPosition});
-            }
+            homePageConfig.dispatch({type: 'UPDATE_FROM_TAPE', currentEdge: transitionLabel, position: executingPosition});
                         
             return animation!;
         }

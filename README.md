@@ -4,7 +4,8 @@ This is the repo for the Turing Machine Language website. The website can be fou
 
 Current TODOs:
 
-- Move the non-homepage pages to gitbook
-- Update the errors from TML v1 to TML v2
+- Complete the documentation
+- Create error pages in the documentation
 - Ensure that tape execution is rendered correctly (animations and values are correct)
+- Fix the tape animation (possibly because of multiple dispatches fired at the same time)
 - Write useful tests

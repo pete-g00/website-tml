@@ -2,7 +2,7 @@ import * as monaco from 'monaco-editor';
 import { CodeError, CodeParser, CodeValidator } from 'parser-tml';
 import themes from './editorThemes.json';
 
-monaco.languages.register({id: "TMProgram"});
+monaco.languages.register({id: "TML"});
 
 const keywords = ['alphabet', 'module', 'switch', 'if', 'else', 'while', 'move', 'changeto', 'goto'];
 const typeKeywords = ["accept", "reject", "left", "right", "start", "end", "blank", "tapehead"];
@@ -35,7 +35,7 @@ const tmConfig: monaco.languages.LanguageConfiguration = {
     ]
 };
 
-monaco.languages.setLanguageConfiguration('TMProgram', tmConfig);
+monaco.languages.setLanguageConfiguration('TML', tmConfig);
 
 const tmLanguage:monaco.languages.IMonarchLanguage = {
     defaultToken: "invalid",
@@ -64,7 +64,7 @@ const tmLanguage:monaco.languages.IMonarchLanguage = {
     }
 };
 
-monaco.languages.setMonarchTokensProvider("TMProgram", tmLanguage);
+monaco.languages.setMonarchTokensProvider("TML", tmLanguage);
 
 function getCompletionItem(model:monaco.editor.ITextModel, position:monaco.Position, keyword:string) {
     return {
@@ -90,7 +90,7 @@ function filterValues(value:string) {
     return filtered;
 }
 
-monaco.languages.registerCompletionItemProvider("TMProgram", {
+monaco.languages.registerCompletionItemProvider("TML", {
     provideCompletionItems: (model, position) => {
         // TODO: if comment, then get comment suggestions
 

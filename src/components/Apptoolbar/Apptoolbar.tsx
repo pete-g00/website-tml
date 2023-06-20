@@ -1,6 +1,5 @@
 import React, { useContext } from 'react';
-import { AppBar, Button, Toolbar, Typography, Box, Link, IconButton, Tooltip } from '@mui/material';
-import {Link as RouterLink } from 'react-router-dom';
+import { AppBar, Button, Toolbar, Typography, Box, IconButton, Tooltip } from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { UserConfigContext } from '../UserConfigContextProvider/UserConfigContextProvider';
 
@@ -21,10 +20,8 @@ function AppToolbar({ isDocumentation }: AppToolbarProps) {
                                 <SettingsIcon/>
                             </IconButton>
                         </Tooltip>}
-                        <Button color='inherit'>
-                            {isDocumentation === true ? 
-                                <Link component={RouterLink} color='inherit' to="/" underline='none'>Editor</Link> : 
-                                <Link component={RouterLink} color='inherit' to="/documentation" underline='none'>Documentation</Link>}
+                        <Button color='inherit' href='https://pete00g.gitbook.io/turing-machine-language/' about='_blank'>
+                            Documentation
                         </Button>
                     </div>
                 </Toolbar>

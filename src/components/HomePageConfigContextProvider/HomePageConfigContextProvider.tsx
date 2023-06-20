@@ -56,8 +56,7 @@ export type HomePageConfigAction =
     {type: 'CONNECT_PANEL_TM'} |
     {type: 'SET_CURRENT_STATE', state: string|undefined} | 
     {type: 'SET_CURRENT_EDGE', edge: string|undefined} | 
-    {type: 'REMOVE_EXECUTING_POSITION'} | 
-    {type: 'ADD_EXECUTING_POSITION', position:CodePosition} |
+    {type: 'UPDATE_FROM_TAPE', currentEdge:string, position:CodePosition|undefined} |
     {type: 'GO_TO_TAPE_SCREEN'} |
     {type: 'GO_TO_TAPE_INPUT'} |
     {type: 'SET_TM_PANEL_SCREEN', screen: TMPanelScreen};
@@ -68,6 +67,7 @@ function convertProgramToTM(program:ProgramContext) {
 }
 
 function homePageConfigReducer(state:_HomePageConfig, action:HomePageConfigAction): _HomePageConfig {
+    console.log(action.type);
     switch (action.type) {
         case 'SET_PROGRAM':
             if (action.program !== undefined) {
@@ -88,13 +88,18 @@ function homePageConfigReducer(state:_HomePageConfig, action:HomePageConfigActio
         case 'CONNECT_PANEL_TM':
             return {...state, tmPanelTM: state.actualTM};
         case 'SET_CURRENT_STATE':
+            console.log(action.state);
             return {...state, currentState: action.state};
         case 'SET_CURRENT_EDGE':
+            console.log(action.edge);
             return {...state, currentEdge: action.edge};
-        case 'REMOVE_EXECUTING_POSITION':
-            return {...state, executingPositions: []};
-        case 'ADD_EXECUTING_POSITION':
-            return {...state, executingPositions: [action.position]};
+        case 'UPDATE_FROM_TAPE':
+            console.log(action.currentEdge);
+            if (action.position === undefined) {
+                return {...state, currentEdge: action.currentEdge, executingPositions: []};
+            } else {
+                return {...state, currentEdge: action.currentEdge, executingPositions: [action.position]};
+            }
         case 'GO_TO_TAPE_SCREEN':
             if (state.tmPanelTM !== undefined) {
                 return {...state, tapePanelTM: state.actualTM, tapePanelProgram: state.actualProgram, isTapeExecuting: true, tmPanelTM: state.actualTM};
