@@ -12,7 +12,7 @@ function convertToDot(tm:TuringMachine, ratio:number): string {
     const values:string[] = [];
     values.push(`digraph {
     ratio="${ratio}"
-    bgcolor="#E6E6E6"
+    bgcolor="transparent"
     fontname="Helvetica"
     node [fontname="Helvetica"]
     edge [fontname="Helvetica"]

@@ -1,8 +1,10 @@
 import React, { createContext, useReducer } from 'react';
 
-
 export type EditorTheme = "cobalt" | "dawn" | "dracula" | "github" | "monokai" | "textmate";
 export const editorThemes:EditorTheme[] = ["cobalt", "dawn", "dracula", "github", "monokai", "textmate"];
+
+export type AppTheme = "dark" | "light";
+export const appThemes: AppTheme[] = ["dark", "light"];
 
 export class EditorFontSize {
   public readonly label;
@@ -36,6 +38,7 @@ interface _UserConfig {
   showEditorLineNumber:boolean;
   transitionTime:number;
   exampleKey:ExampleKey|undefined;
+  theme: AppTheme;
 }
 
 export interface UserConfig {
@@ -45,6 +48,7 @@ export interface UserConfig {
   showEditorLineNumber:boolean;
   transitionTime:number;
   exampleKey:ExampleKey|undefined;
+  theme: AppTheme;
   dispatch: React.Dispatch<UserConfigAction>;
 }
 
@@ -55,6 +59,7 @@ const initialConfig:UserConfig = {
   isDrawerOpen: false,
   transitionTime: 500,
   exampleKey: "isDiv2",
+  theme: "dark",
   dispatch: () => undefined,
 };
 
@@ -64,6 +69,7 @@ export type UserConfigAction =
   {type: 'CLOSE_DRAWER'} |
   {type: 'OPEN_DRAWER'} | 
   {type: 'SET_EDITOR_THEME', theme: EditorTheme} |
+  {type: 'SET_APP_THEME', theme: AppTheme} |
   {type: 'SET_EDITOR_FONT_SIZE', fontSize: EditorFontSize} | 
   {type: 'SET_SHOW_LINE_NUMBER', value: boolean} | 
   {type: 'SET_TRANSITION_TIME', transitionTime: number} | 
@@ -73,6 +79,8 @@ function userConfigReducer(state:_UserConfig, action:UserConfigAction): _UserCon
   switch (action.type) {
     case 'SET_EDITOR_THEME':
       return {...state, editorTheme: action.theme, isDrawerOpen: false};
+    case 'SET_APP_THEME':
+      return {...state, theme: action.theme, isDrawerOpen: false};
     case 'SET_EDITOR_FONT_SIZE':
       return {...state, editorFontSize: action.fontSize, isDrawerOpen: false};
     case 'SET_SHOW_LINE_NUMBER':

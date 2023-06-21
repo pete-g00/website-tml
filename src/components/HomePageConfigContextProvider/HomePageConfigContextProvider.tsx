@@ -53,7 +53,7 @@ export const HomePageConfigContext = createContext<HomePageConfig>(initialConfig
 export type HomePageConfigAction = 
     {type: 'SET_PROGRAM', program: ProgramContext|undefined} |
     {type: 'SET_ALL_PROGRAM', program: ProgramContext|undefined} |
-    {type: 'CONNECT_PANEL_TM'} |
+    // {type: 'CONNECT_PANEL_TM'} |
     {type: 'SET_CURRENT_STATE', state: string|undefined} | 
     {type: 'SET_CURRENT_EDGE', edge: string|undefined} | 
     {type: 'UPDATE_FROM_TAPE', currentEdge:string, position:CodePosition|undefined} |
@@ -85,8 +85,6 @@ function homePageConfigReducer(state:_HomePageConfig, action:HomePageConfigActio
             } else {
                 return {...state, actualProgram: undefined, actualTM: undefined, tmPanelTM: undefined, tapePanelTM: undefined};
             }
-        case 'CONNECT_PANEL_TM':
-            return {...state, tmPanelTM: state.actualTM};
         case 'SET_CURRENT_STATE':
             console.log(action.state);
             return {...state, currentState: action.state};
@@ -109,7 +107,7 @@ function homePageConfigReducer(state:_HomePageConfig, action:HomePageConfigActio
         case 'GO_TO_TAPE_INPUT':
             return {...state, tapePanelTM: undefined, currentState: undefined, currentEdge: undefined, isTapeExecuting: false, executingPositions: []};
         case 'SET_TM_PANEL_SCREEN':
-            return {...state, tmPanelScreen: action.screen};
+            return {...state, tmPanelScreen: action.screen, tmPanelTM: state.actualTM};
     }
 }
 

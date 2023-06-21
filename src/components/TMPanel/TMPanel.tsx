@@ -18,7 +18,6 @@ function TMPanel() {
 
     function showScreen(screen:TMPanelScreen) {
         return () => {
-            homePageConfig.dispatch({type: 'CONNECT_PANEL_TM'});
             homePageConfig.dispatch({type: 'SET_TM_PANEL_SCREEN', screen});
         };
     }

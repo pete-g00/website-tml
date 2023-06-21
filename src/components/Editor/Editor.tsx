@@ -11,14 +11,20 @@ import { HomePageConfigContext } from '../HomePageConfigContextProvider/HomePage
 const examples:{[key:string]:string} = _examples;
 
 function Editor() {
+    // the editor div element
     const divEl = useRef<HTMLDivElement>(null);
+    // the actual editor
     const editor = useRef<monaco.editor.IStandaloneCodeEditor|null>(null);
+    // the markers (highlighted positions) within the editor
     const markers:monaco.editor.IMarkerData[] = [];
-    const event = useRef<monaco.IDisposable|undefined>(undefined);
+    
+    // the locked value of the editor during execution
+    const lockedValue = useRef<string|undefined>();
     
     const userConfig = useContext(UserConfigContext);
     const homePageConfig = useContext(HomePageConfigContext);
 
+    // handle change of the program value
     function handleChange() {
         if (!homePageConfig.isTapeExecuting && editor.current) {
             const program = getProgram(editor.current.getValue(), markers);
@@ -32,6 +38,7 @@ function Editor() {
         }
     }
     
+    // create the editor
     useEffect(() => {
         if (divEl.current) {
             const _editor = monaco.editor.create(divEl.current, {
@@ -55,22 +62,30 @@ function Editor() {
         };
     }, []);
 
+    // stop the user from changing the value during tape execution (i.e. when there is a locked value)
     useEffect(() => {
-        if (homePageConfig.isTapeExecuting) {
-            const value = editor.current?.getValue();
-            event.current = editor.current?.onDidChangeModelContent(() => {
-                if (editor.current?.getValue() !== value) {
-                    editor.current?.setValue(value!);
-                    setShowSnackbar(true);
-                }
-            });
-        } else {
-            markers.length = 0;
-            monaco.editor.setModelMarkers(editor.current!.getModel()!, "executing-code", markers);
-            event.current?.dispose();
+        const event = editor.current!.onDidChangeModelContent(() => {
+            if (lockedValue.current && editor.current!.getValue() !== lockedValue.current) {
+                editor.current!.setValue(lockedValue.current);
+                setShowSnackbar(true);
+            }
+        });
+
+        return () => {
+            event.dispose();
+        };
+    }, []);
+
+    // update the locked value based on tape execution
+    useEffect(() => {
+        if (homePageConfig.isTapeExecuting && editor.current!.getValue()! !== lockedValue.current!) {
+            lockedValue.current = editor.current!.getValue()!;
+        } else if (!homePageConfig.isTapeExecuting && lockedValue.current) {
+            lockedValue.current = undefined;
         }
     });
 
+    // change the editor based on the user configuration
     useEffect(() => {
         if (editor.current) {
             editor.current.updateOptions({
@@ -80,6 +95,8 @@ function Editor() {
             });
         }
     });
+
+
 
     useEffect(() => {
         if (userConfig.exampleKey && editor.current) {
